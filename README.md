@@ -91,6 +91,16 @@ The app comes pre-seeded with demo data so you can explore immediately.
 | Bids | 7 | Spread across events with realistic proposals |
 | Bookings | 1 | Executive Team Building Dinner at Le Petit Bistro |
 
+## Prototype Limitations / Security Notes
+
+This project is a **prototype only** and is NOT production-ready. The following security gaps must be addressed before any real deployment:
+
+- **Unauthenticated user enumeration** — `GET /api/users` requires no authentication and returns all user records including email addresses. Combined with `POST /api/auth/login` (which accepts any `user_id` with no credential), this allows any caller to enumerate all accounts and fully impersonate any user.
+- **Mock authentication** — `POST /api/auth/login` performs no credential verification. The `X-User-ID` header is trusted without signing or session validation.
+- **Unauthenticated restaurant profiles** — `GET /api/restaurants/{profile_id}` is open to anonymous callers.
+
+See `todos/006` for recommended remediation options.
+
 ## API Documentation
 
 FastAPI auto-generates interactive API docs at http://localhost:8000/docs when the backend is running.
