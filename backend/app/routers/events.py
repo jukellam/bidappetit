@@ -165,6 +165,7 @@ def cancel_event(
         raise HTTPException(status_code=400, detail="Can only cancel open events")
 
     event.status = "cancelled"
+    db.query(Bid).filter(Bid.event_id == event_id, Bid.status == "pending").update({"status": "rejected"})
     db.commit()
     db.refresh(event)
 
