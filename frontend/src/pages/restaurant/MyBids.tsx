@@ -8,8 +8,8 @@ export function MyBidsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.get<Event[]>('/api/events').then(all => {
-      setEvents(all.filter(e => e.my_bid))
+    api.get<Event[]>('/api/events?has_bid=true').then(ev => {
+      setEvents(ev)
     }).finally(() => setLoading(false))
   }, [])
 

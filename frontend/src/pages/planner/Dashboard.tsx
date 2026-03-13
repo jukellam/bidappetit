@@ -11,10 +11,10 @@ export function PlannerDashboard() {
 
   useEffect(() => {
     Promise.all([
-      api.get<Event[]>('/api/events'),
+      api.get<Event[]>(`/api/events?planner_id=${user.id}`),
       api.get<Booking[]>('/api/bookings'),
     ]).then(([ev, bk]) => {
-      setEvents(ev.filter(e => e.planner_id === user.id))
+      setEvents(ev)
       setBookings(bk)
     }).finally(() => setLoading(false))
   }, [user.id])

@@ -11,20 +11,20 @@ export function RestaurantDashboard() {
   const user = getCurrentUser()!
 
   useEffect(() => {
+    const cityParam = user.restaurant_profile?.city ? `&city=${encodeURIComponent(user.restaurant_profile.city)}` : ''
     Promise.all([
-      api.get<Event[]>('/api/events?status=open'),
+      api.get<Event[]>(`/api/events?status=open${cityParam}`),
       api.get<Booking[]>('/api/bookings'),
     ]).then(([ev, bk]) => {
       setEvents(ev)
       setBookings(bk)
     }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load')).finally(() => setLoading(false))
-  }, [])
+  }, [user.restaurant_profile?.city])
 
   if (loading) return <div className="loading">Loading...</div>
   if (error) return <div className="error-message">{error}</div>
 
   const city = user.restaurant_profile?.city
-  const cityEvents = events.filter(e => e.city === city)
 
   return (
     <div>
@@ -35,7 +35,7 @@ export function RestaurantDashboard() {
 
       <div className="summary-cards">
         <div className="summary-card">
-          <div className="number">{cityEvents.length}</div>
+          <div className="number">{events.length}</div>
           <div className="label">Events in {city}</div>
         </div>
         <div className="summary-card">
@@ -54,13 +54,13 @@ export function RestaurantDashboard() {
       </div>
 
       <h2 className="section-heading">Recent Events in {city}</h2>
-      {cityEvents.length === 0 ? (
+      {events.length === 0 ? (
         <div className="empty-state">
           <h3>No open events in {city}</h3>
           <p>Check back later for new opportunities</p>
         </div>
       ) : (
-        cityEvents.slice(0, 5).map(event => (
+        events.slice(0, 5).map(event => (
           <Link key={event.id} to={`/restaurant/events/${event.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className="event-card">
               <div className="event-card-header">

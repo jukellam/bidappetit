@@ -42,11 +42,19 @@ def list_events(
     event_type: Optional[str] = Query(None),
     budget_max: Optional[float] = Query(None),
     status: Optional[str] = Query(None),
+    planner_id: int | None = Query(None),
+    has_bid: bool | None = Query(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     q = db.query(Event)
 
+    if planner_id is not None:
+        q = q.filter(Event.planner_id == planner_id)
+    if has_bid:
+        q = q.filter(Event.id.in_(
+            db.query(Bid.event_id).filter(Bid.restaurant_id == current_user.id)
+        ))
     if city:
         q = q.filter(Event.city == city)
     if date_from:
