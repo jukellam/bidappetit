@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { api } from '../../api/client'
-import type { Event, EventType } from '../../types'
+import type { Event } from '../../types'
+import { CITIES, EVENT_TYPES } from '../../constants'
 
-const EVENT_TYPES: EventType[] = ['corporate', 'wedding', 'birthday', 'cocktail', 'holiday', 'fundraiser', 'other']
-const CITIES = ['', 'San Francisco', 'Chicago']
+const cityOptions = ['', ...CITIES]
 
 function deadlineCountdown(deadline: string): string {
   const diff = new Date(deadline).getTime() - Date.now()
@@ -45,7 +45,7 @@ export function BrowseEvents() {
           <label className="form-label">City</label>
           <select className="form-select" value={filters.city} onChange={setFilter('city')}>
             <option value="">All Cities</option>
-            {CITIES.filter(Boolean).map(c => <option key={c} value={c}>{c}</option>)}
+            {cityOptions.filter(Boolean).map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         <div className="form-group">

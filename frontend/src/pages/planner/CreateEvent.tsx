@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { api } from '../../api/client'
-import type { Event, EventType } from '../../types'
-
-const EVENT_TYPES: EventType[] = ['corporate', 'wedding', 'birthday', 'cocktail', 'holiday', 'fundraiser', 'other']
-const CITIES = ['San Francisco', 'Chicago']
+import type { Event } from '../../types'
+import { CITIES, EVENT_TYPES } from '../../constants'
 
 export function CreateEvent() {
   const navigate = useNavigate()

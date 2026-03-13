@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router'
 import { api } from '../../api/client'
-import type { Event, Bid, Booking } from '../../types'
+import type { Event, Booking } from '../../types'
+import { BidCard } from '../../components/BidCard'
 
 export function PlannerEventDetail() {
   const { id } = useParams<{ id: string }>()
@@ -101,7 +102,7 @@ export function PlannerEventDetail() {
 
       {comparing && comparedBids.length >= 2 && (
         <div className="compare-grid" style={{ marginBottom: '24px' }}>
-          {comparedBids.map(renderBidCard)}
+          {comparedBids.map(bid => <BidCard key={bid.id} bid={bid} compact />)}
         </div>
       )}
 
@@ -111,7 +112,13 @@ export function PlannerEventDetail() {
           <p>Restaurants will see your event and submit proposals</p>
         </div>
       ) : (
-        !comparing && bids.map(bid => renderBidFull(bid, event.status === 'open'))
+        !comparing && bids.map(bid => (
+          <BidCard
+            key={bid.id}
+            bid={bid}
+            onAccept={event.status === 'open' ? setAcceptingId : undefined}
+          />
+        ))
       )}
 
       {comparing && (
@@ -141,47 +148,4 @@ export function PlannerEventDetail() {
       )}
     </div>
   )
-
-  function renderBidCard(bid: Bid) {
-    return (
-      <div key={bid.id} className={`bid-card${bid.status === 'accepted' ? ' accepted' : ''}`}>
-        <div className="bid-card-header">
-          <h4>{bid.restaurant_name}</h4>
-          <span className={`badge badge-${bid.status}`}>{bid.status}</span>
-        </div>
-        <div className="bid-price">${bid.price_total.toLocaleString()}</div>
-        {bid.price_per_person && <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>${bid.price_per_person}/person</p>}
-        <div className="bid-card-body">
-          <p><strong>Proposal:</strong> {bid.proposal_text}</p>
-          {bid.menu_details && <p><strong>Menu:</strong> {bid.menu_details}</p>}
-          {bid.space_details && <p><strong>Space:</strong> {bid.space_details}</p>}
-          {bid.inclusions && <p><strong>Includes:</strong> {bid.inclusions}</p>}
-        </div>
-      </div>
-    )
-  }
-
-  function renderBidFull(bid: Bid, canAccept: boolean) {
-    return (
-      <div key={bid.id} className={`bid-card${bid.status === 'accepted' ? ' accepted' : ''}`}>
-        <div className="bid-card-header">
-          <h4>{bid.restaurant_name} {bid.restaurant_cuisine && <span style={{ fontWeight: 400, color: 'var(--color-gray-500)' }}>&middot; {bid.restaurant_cuisine}</span>}</h4>
-          <span className={`badge badge-${bid.status}`}>{bid.status}</span>
-        </div>
-        <div className="bid-price">${bid.price_total.toLocaleString()}</div>
-        {bid.price_per_person && <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>${bid.price_per_person}/person</p>}
-        <div className="bid-card-body">
-          <p>{bid.proposal_text}</p>
-          {bid.menu_details && <p><strong>Menu:</strong> {bid.menu_details}</p>}
-          {bid.space_details && <p><strong>Space:</strong> {bid.space_details}</p>}
-          {bid.inclusions && <p><strong>Includes:</strong> {bid.inclusions}</p>}
-        </div>
-        {canAccept && bid.status === 'pending' && (
-          <div className="bid-actions">
-            <button className="btn btn-primary btn-sm" onClick={() => setAcceptingId(bid.id)}>Accept Bid</button>
-          </div>
-        )}
-      </div>
-    )
-  }
 }
