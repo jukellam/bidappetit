@@ -1,5 +1,5 @@
 ---
-status: pending
+status: complete
 priority: p1
 issue_id: "004"
 tags: [code-review, architecture, react, typescript]
@@ -74,10 +74,10 @@ Option 1 (AuthContext). It's the idiomatic React solution and scales to addition
 
 ## Acceptance Criteria
 
-- [ ] No `getCurrentUser()` or `setCurrentUser()` calls anywhere except inside AuthContext
-- [ ] Both dashboards re-render correctly when user changes
-- [ ] Logout clears auth state in one place
-- [ ] TypeScript compiles clean with `npx tsc --noEmit`
+- [x] No `getCurrentUser()` or `setCurrentUser()` calls anywhere except inside AuthContext
+- [x] Both dashboards re-render correctly when user changes
+- [x] Logout clears auth state in one place
+- [x] TypeScript compiles clean with `npx tsc --noEmit`
 
 ## Work Log
 
@@ -89,3 +89,15 @@ Option 1 (AuthContext). It's the idiomatic React solution and scales to addition
 - Identified dual state pattern
 - Confirmed non-null assertion risk in both dashboards
 - Found polling interval reset as secondary consequence
+
+### 2026-03-12 — Implementation
+
+**By:** Claude (todo 004)
+
+**Actions:**
+- Created `frontend/src/context/AuthContext.tsx` with `AuthProvider` and `useAuth()` hook
+- Replaced `getCurrentUser()`, `setCurrentUser()`, and `clearCurrentUser()` in `api/client.ts` with a single `setApiUser()` function called only by AuthContext
+- Wrapped `App.tsx` in `AuthProvider`, extracted routing into `AppRoutes` component that consumes `useAuth()`
+- Updated `planner/Dashboard.tsx` and `restaurant/Dashboard.tsx` to use `useAuth()` with proper null handling instead of `getCurrentUser()!`
+- Verified zero remaining references to old getter/setter/clear functions
+- TypeScript compiles clean (`npx tsc --noEmit` passes with no errors)
