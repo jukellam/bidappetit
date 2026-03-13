@@ -30,7 +30,7 @@ def submit_bid(
         raise HTTPException(status_code=404, detail="Event not found")
     if event.status != "open":
         raise HTTPException(status_code=400, detail="Event is not open for bids")
-    if event.bid_deadline < datetime.now(timezone.utc):
+    if event.bid_deadline.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="Bid deadline has passed")
 
     existing = (
