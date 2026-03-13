@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import update as sa_update
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -83,14 +84,23 @@ def accept_bid(
     bid = db.get(Bid, bid_id)
     if not bid:
         raise HTTPException(status_code=404, detail="Bid not found")
+    if bid.status != "pending":
+        raise HTTPException(status_code=400, detail="Bid is not pending")
 
     event = db.get(Event, bid.event_id)
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
     if event.planner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your event")
-    if event.status != "open":
+
+    result = db.execute(
+        sa_update(Event)
+        .where(Event.id == bid.event_id, Event.status == "open")
+        .values(status="booked")
+    )
+    if result.rowcount == 0:
         raise HTTPException(status_code=400, detail="Event is not open")
+    db.refresh(event)  # refresh to reflect the updated status
 
     # Accept this bid
     bid.status = "accepted"
@@ -103,9 +113,6 @@ def accept_bid(
     )
     for other in other_bids:
         other.status = "rejected"
-
-    # Update event status
-    event.status = "booked"
 
     # Create booking
     booking = Booking(
