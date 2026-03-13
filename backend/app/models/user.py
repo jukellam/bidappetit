@@ -4,6 +4,7 @@ from sqlalchemy import String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.models.enums import UserType
 
 
 class User(Base):
@@ -12,7 +13,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(255), unique=True)
     name: Mapped[str] = mapped_column(String(255))
-    user_type: Mapped[str] = mapped_column(String(20))  # "planner" | "restaurant"
+    user_type: Mapped[str] = mapped_column(String(20))  # UserType.PLANNER | UserType.RESTAURANT
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )

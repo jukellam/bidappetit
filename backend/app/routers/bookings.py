@@ -5,6 +5,7 @@ from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.models.booking import Booking
+from app.models.enums import BookingStatus, EventStatus, BidStatus, UserType
 from app.schemas.booking import BookingResponse
 
 router = APIRouter(tags=["bookings"])
@@ -44,7 +45,7 @@ def list_bookings(
             joinedload(Booking.restaurant_user).joinedload(User.restaurant_profile),
         )
     )
-    if current_user.user_type == "planner":
+    if current_user.user_type == UserType.PLANNER:
         q = q.filter(Booking.planner_id == current_user.id)
     else:
         q = q.filter(Booking.restaurant_id == current_user.id)
@@ -96,14 +97,14 @@ def cancel_booking(
         raise HTTPException(status_code=404, detail="Booking not found")
     if booking.planner_id != current_user.id and booking.restaurant_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your booking")
-    if booking.status != "confirmed":
+    if booking.status != BookingStatus.CONFIRMED:
         raise HTTPException(status_code=400, detail="Can only cancel confirmed bookings")
 
-    booking.status = "cancelled"
+    booking.status = BookingStatus.CANCELLED
     if booking.event:
-        booking.event.status = "open"
+        booking.event.status = EventStatus.OPEN
     if booking.bid:
-        booking.bid.status = "pending"
+        booking.bid.status = BidStatus.PENDING
     db.commit()
     db.refresh(booking)
     return _booking_response(booking)

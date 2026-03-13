@@ -5,6 +5,7 @@ from sqlalchemy import String, Integer, Float, Date, Time, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.models.enums import EventStatus
 
 
 class Event(Base):
@@ -24,7 +25,7 @@ class Event(Base):
     budget_min: Mapped[float] = mapped_column(Float)
     budget_max: Mapped[float] = mapped_column(Float)
     bid_deadline: Mapped[datetime] = mapped_column(DateTime)
-    status: Mapped[str] = mapped_column(String(20), default="open")
+    status: Mapped[str] = mapped_column(String(20), default=EventStatus.OPEN)
     event_type: Mapped[str] = mapped_column(String(50))
     cuisine_preferences: Mapped[Optional[str]] = mapped_column(
         String(500), nullable=True

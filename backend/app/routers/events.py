@@ -10,6 +10,7 @@ from app.dependencies import get_current_user
 from app.models.user import User
 from app.models.event import Event
 from app.models.bid import Bid
+from app.models.enums import EventStatus, BidStatus, UserType
 from app.schemas.bid import BidResponse
 from app.schemas.event import EventCreate, EventResponse
 
@@ -22,7 +23,7 @@ def create_event(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    if current_user.user_type != "planner":
+    if current_user.user_type != UserType.PLANNER:
         raise HTTPException(status_code=403, detail="Only planners can create events")
 
     event = Event(planner_id=current_user.id, **data.model_dump())
@@ -131,7 +132,7 @@ def get_event(
                     restaurant_cuisine=profile.cuisine_type if profile else None,
                 )
             )
-    elif current_user.user_type == "restaurant":
+    elif current_user.user_type == UserType.RESTAURANT:
         # Restaurant sees only their own bid
         for bid in event.bids:
             if bid.restaurant_id == current_user.id:
@@ -169,11 +170,11 @@ def cancel_event(
         raise HTTPException(status_code=404, detail="Event not found")
     if event.planner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your event")
-    if event.status != "open":
+    if event.status != EventStatus.OPEN:
         raise HTTPException(status_code=400, detail="Can only cancel open events")
 
-    event.status = "cancelled"
-    db.query(Bid).filter(Bid.event_id == event_id, Bid.status == "pending").update({"status": "rejected"})
+    event.status = EventStatus.CANCELLED
+    db.query(Bid).filter(Bid.event_id == event_id, Bid.status == BidStatus.PENDING).update({"status": BidStatus.REJECTED})
     db.commit()
     db.refresh(event)
 

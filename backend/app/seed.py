@@ -7,21 +7,22 @@ from app.models.restaurant import RestaurantProfile
 from app.models.event import Event
 from app.models.bid import Bid
 from app.models.booking import Booking
+from app.models.enums import UserType, EventStatus, BidStatus, BookingStatus
 
 
 def seed_database(db: Session) -> None:
     # --- Users ---
     planners = [
-        User(id=1, email="sarah@example.com", name="Sarah Chen", user_type="planner"),
-        User(id=2, email="marcus@example.com", name="Marcus Johnson", user_type="planner"),
-        User(id=3, email="elena@example.com", name="Elena Rodriguez", user_type="planner"),
+        User(id=1, email="sarah@example.com", name="Sarah Chen", user_type=UserType.PLANNER),
+        User(id=2, email="marcus@example.com", name="Marcus Johnson", user_type=UserType.PLANNER),
+        User(id=3, email="elena@example.com", name="Elena Rodriguez", user_type=UserType.PLANNER),
     ]
     restaurant_users = [
-        User(id=4, email="bellanotte@example.com", name="Bella Notte", user_type="restaurant"),
-        User(id=5, email="sakura@example.com", name="Sakura House", user_type="restaurant"),
-        User(id=6, email="eljardin@example.com", name="El Jardin", user_type="restaurant"),
-        User(id=7, email="primecut@example.com", name="The Prime Cut", user_type="restaurant"),
-        User(id=8, email="petitbistro@example.com", name="Le Petit Bistro", user_type="restaurant"),
+        User(id=4, email="bellanotte@example.com", name="Bella Notte", user_type=UserType.RESTAURANT),
+        User(id=5, email="sakura@example.com", name="Sakura House", user_type=UserType.RESTAURANT),
+        User(id=6, email="eljardin@example.com", name="El Jardin", user_type=UserType.RESTAURANT),
+        User(id=7, email="primecut@example.com", name="The Prime Cut", user_type=UserType.RESTAURANT),
+        User(id=8, email="petitbistro@example.com", name="Le Petit Bistro", user_type=UserType.RESTAURANT),
     ]
     db.add_all(planners + restaurant_users)
     db.flush()
@@ -76,7 +77,7 @@ def seed_database(db: Session) -> None:
             city="San Francisco", date=date(2026, 4, 15), time=time(18, 30),
             guest_count=80, budget_min=5000, budget_max=8000,
             bid_deadline=datetime(2026, 4, 8, 23, 59),
-            status="open", event_type="corporate",
+            status=EventStatus.OPEN, event_type="corporate",
             cuisine_preferences="Open to all cuisines", vibe="Professional yet relaxed",
         ),
         # 2: Open, no bids (Chicago)
@@ -86,7 +87,7 @@ def seed_database(db: Session) -> None:
             city="Chicago", date=date(2026, 5, 20), time=time(17, 0),
             duration_hours=5.0, guest_count=120, budget_min=8000, budget_max=15000,
             bid_deadline=datetime(2026, 5, 6, 23, 59),
-            status="open", event_type="wedding",
+            status=EventStatus.OPEN, event_type="wedding",
             cuisine_preferences="American or Italian", dietary_restrictions="Vegetarian options required",
             vibe="Romantic and elegant",
         ),
@@ -97,7 +98,7 @@ def seed_database(db: Session) -> None:
             city="San Francisco", date=date(2026, 4, 25), time=time(19, 0),
             guest_count=50, budget_min=3000, budget_max=6000,
             bid_deadline=datetime(2026, 4, 18, 23, 59),
-            status="open", event_type="holiday",
+            status=EventStatus.OPEN, event_type="holiday",
             vibe="Festive and fun", special_requests="Photo booth area if possible",
         ),
         # 4: Open, has 3 bids (Chicago)
@@ -107,7 +108,7 @@ def seed_database(db: Session) -> None:
             city="Chicago", date=date(2026, 5, 10), time=time(18, 0),
             duration_hours=4.0, guest_count=100, budget_min=6000, budget_max=12000,
             bid_deadline=datetime(2026, 4, 26, 23, 59),
-            status="open", event_type="fundraiser",
+            status=EventStatus.OPEN, event_type="fundraiser",
             cuisine_preferences="Fine dining", dietary_restrictions="Gluten-free options needed",
             vibe="Sophisticated and glamorous",
         ),
@@ -118,7 +119,7 @@ def seed_database(db: Session) -> None:
             city="San Francisco", date=date(2026, 4, 5), time=time(19, 30),
             guest_count=25, budget_min=2000, budget_max=4000,
             bid_deadline=datetime(2026, 3, 29, 23, 59),
-            status="booked", event_type="corporate",
+            status=EventStatus.BOOKED, event_type="corporate",
             cuisine_preferences="French or Japanese", vibe="Intimate and upscale",
         ),
         # 6: Cancelled (SF)
@@ -128,7 +129,7 @@ def seed_database(db: Session) -> None:
             city="San Francisco", date=date(2026, 4, 20), time=time(17, 30),
             guest_count=60, budget_min=4000, budget_max=7000,
             bid_deadline=datetime(2026, 4, 13, 23, 59),
-            status="cancelled", event_type="cocktail",
+            status=EventStatus.CANCELLED, event_type="cocktail",
             vibe="Modern and celebratory",
         ),
     ]
@@ -144,7 +145,7 @@ def seed_database(db: Session) -> None:
             menu_details="4-course Italian holiday menu: bruschetta trio, winter salad, choice of osso buco or sea bass, panettone dessert",
             space_details="Mezzanine level with dedicated bar and DJ area",
             inclusions="Complimentary sparkling wine toast, holiday decorations, coat check",
-            status="pending",
+            status=BidStatus.PENDING,
         ),
         Bid(
             id=2, event_id=3, restaurant_id=5, price_total=4500, price_per_person=90,
@@ -152,7 +153,7 @@ def seed_database(db: Session) -> None:
             menu_details="Premium shared plates: sashimi platter, wagyu sliders, tempura selection, matcha dessert bar",
             space_details="Private room with traditional and modern seating options",
             inclusions="Sake tasting flight for each guest, custom menu cards",
-            status="pending",
+            status=BidStatus.PENDING,
         ),
         # Bids on event 4 (Fundraiser Gala) — from restaurants 6, 7, and 4
         Bid(
@@ -161,7 +162,7 @@ def seed_database(db: Session) -> None:
             menu_details="5-course Mexican fine dining: ceviche trio, mole negro, herb-crusted lamb, tres leches cake",
             space_details="Full garden courtyard with stage area for auction, indoor backup space",
             inclusions="Mariachi band, custom cocktail menu, valet parking coordination",
-            status="pending",
+            status=BidStatus.PENDING,
         ),
         Bid(
             id=4, event_id=4, restaurant_id=7, price_total=11000, price_per_person=110,
@@ -169,7 +170,7 @@ def seed_database(db: Session) -> None:
             menu_details="Premium 5-course: oysters, lobster bisque, dry-aged ribeye, chocolate soufflé",
             space_details="Grand dining room (100 cap) with dedicated auction stage and reception area",
             inclusions="Premium open bar, valet parking, professional event coordinator on-site",
-            status="pending",
+            status=BidStatus.PENDING,
         ),
         Bid(
             id=5, event_id=4, restaurant_id=4, price_total=9800, price_per_person=98,
@@ -177,7 +178,7 @@ def seed_database(db: Session) -> None:
             menu_details="Italian gala menu: antipasto display, risotto course, branzino, tiramisu station",
             space_details="Full restaurant buyout with cocktail reception in lounge area",
             inclusions="Italian wine pairing, live music, custom printed menus",
-            status="pending",
+            status=BidStatus.PENDING,
         ),
         # Bids on event 5 (Team Building) — restaurant 8 accepted, restaurant 4 rejected
         Bid(
@@ -186,7 +187,7 @@ def seed_database(db: Session) -> None:
             menu_details="Chef's tasting menu: French onion soup, duck confit, beef bourguignon, crème brûlée",
             space_details="Private dining room seating 25 with fireplace",
             inclusions="Sommelier-curated wine pairing, personalized place cards, amuse-bouche",
-            status="accepted",
+            status=BidStatus.ACCEPTED,
         ),
         Bid(
             id=7, event_id=5, restaurant_id=4, price_total=3500, price_per_person=140,
@@ -194,7 +195,7 @@ def seed_database(db: Session) -> None:
             menu_details="5-course Italian tasting: carpaccio, handmade ravioli, veal piccata, panna cotta",
             space_details="Wine cellar private dining room",
             inclusions="Wine pairing, private sommelier, custom menu design",
-            status="rejected",
+            status=BidStatus.REJECTED,
         ),
     ]
     db.add_all(bids)
@@ -203,7 +204,7 @@ def seed_database(db: Session) -> None:
     # --- Booking for event 5 ---
     booking = Booking(
         id=1, event_id=5, bid_id=6, planner_id=2, restaurant_id=8,
-        status="confirmed",
+        status=BookingStatus.CONFIRMED,
     )
     db.add(booking)
     db.commit()

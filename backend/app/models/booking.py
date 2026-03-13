@@ -4,6 +4,7 @@ from sqlalchemy import String, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.models.enums import BookingStatus
 
 
 class Booking(Base):
@@ -14,7 +15,7 @@ class Booking(Base):
     bid_id: Mapped[int] = mapped_column(ForeignKey("bids.id"))
     planner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     restaurant_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    status: Mapped[str] = mapped_column(String(20), default="confirmed")
+    status: Mapped[str] = mapped_column(String(20), default=BookingStatus.CONFIRMED)
     confirmed_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )

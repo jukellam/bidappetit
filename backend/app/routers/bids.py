@@ -10,6 +10,7 @@ from app.models.user import User
 from app.models.event import Event
 from app.models.bid import Bid
 from app.models.booking import Booking
+from app.models.enums import EventStatus, BidStatus, UserType
 from app.schemas.bid import BidCreate, BidUpdate, BidResponse
 from app.schemas.booking import BookingResponse
 
@@ -23,13 +24,13 @@ def submit_bid(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    if current_user.user_type != "restaurant":
+    if current_user.user_type != UserType.RESTAURANT:
         raise HTTPException(status_code=403, detail="Only restaurants can submit bids")
 
     event = db.get(Event, event_id)
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
-    if event.status != "open":
+    if event.status != EventStatus.OPEN:
         raise HTTPException(status_code=400, detail="Event is not open for bids")
     if event.bid_deadline.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="Bid deadline has passed")
@@ -63,7 +64,7 @@ def update_bid(
         raise HTTPException(status_code=404, detail="Bid not found")
     if bid.restaurant_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your bid")
-    if bid.status != "pending":
+    if bid.status != BidStatus.PENDING:
         raise HTTPException(status_code=400, detail="Can only update pending bids")
 
     event = db.get(Event, bid.event_id)
@@ -90,7 +91,7 @@ def accept_bid(
     bid = db.get(Bid, bid_id)
     if not bid:
         raise HTTPException(status_code=404, detail="Bid not found")
-    if bid.status != "pending":
+    if bid.status != BidStatus.PENDING:
         raise HTTPException(status_code=400, detail="Bid is not pending")
 
     event = db.get(Event, bid.event_id)
@@ -101,15 +102,15 @@ def accept_bid(
 
     result = db.execute(
         sa_update(Event)
-        .where(Event.id == bid.event_id, Event.status == "open")
-        .values(status="booked")
+        .where(Event.id == bid.event_id, Event.status == EventStatus.OPEN)
+        .values(status=EventStatus.BOOKED)
     )
     if result.rowcount == 0:
         raise HTTPException(status_code=400, detail="Event is not open")
     db.refresh(event)  # refresh to reflect the updated status
 
     # Accept this bid
-    bid.status = "accepted"
+    bid.status = BidStatus.ACCEPTED
 
     # Reject all other bids on the same event
     other_bids = (
@@ -118,7 +119,7 @@ def accept_bid(
         .all()
     )
     for other in other_bids:
-        other.status = "rejected"
+        other.status = BidStatus.REJECTED
 
     # Create booking
     booking = Booking(

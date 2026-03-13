@@ -1,7 +1,7 @@
 export type UserType = 'planner' | 'restaurant'
-export type EventStatus = 'open' | 'booked' | 'cancelled' | 'expired'
-export type BidStatus = 'pending' | 'accepted' | 'rejected' | 'withdrawn'
-export type BookingStatus = 'confirmed' | 'cancelled' | 'completed'
+export type EventStatus = 'open' | 'booked' | 'cancelled'
+export type BidStatus = 'pending' | 'accepted' | 'rejected'
+export type BookingStatus = 'confirmed' | 'cancelled'
 export type EventType = 'corporate' | 'wedding' | 'birthday' | 'cocktail' | 'holiday' | 'fundraiser' | 'other'
 
 export interface User {
