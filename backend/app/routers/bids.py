@@ -50,30 +50,6 @@ def submit_bid(
     return bid
 
 
-@router.get("/api/events/{event_id}/bids")
-def list_bids(
-    event_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    event = db.get(Event, event_id)
-    if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
-
-    bids = db.query(Bid).filter(Bid.event_id == event_id).all()
-
-    if current_user.id == event.planner_id:
-        return {"bids": [BidResponse.model_validate(b) for b in bids], "count": len(bids)}
-
-    # Restaurant: own bid + count
-    my_bid = None
-    for b in bids:
-        if b.restaurant_id == current_user.id:
-            my_bid = BidResponse.model_validate(b)
-            break
-    return {"my_bid": my_bid, "count": len(bids)}
-
-
 @router.put("/api/bids/{bid_id}", response_model=BidResponse)
 def update_bid(
     bid_id: int,
