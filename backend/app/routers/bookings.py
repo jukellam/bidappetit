@@ -100,6 +100,10 @@ def cancel_booking(
         raise HTTPException(status_code=400, detail="Can only cancel confirmed bookings")
 
     booking.status = "cancelled"
+    if booking.event:
+        booking.event.status = "open"
+    if booking.bid:
+        booking.bid.status = "pending"
     db.commit()
     db.refresh(booking)
     return _booking_response(booking)
