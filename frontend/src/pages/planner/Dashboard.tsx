@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { api, getCurrentUser } from '../../api/client'
+import { api } from '../../api/client'
+import { useAuth } from '../../context/AuthContext'
 import type { Event, Booking } from '../../types'
 
 export function PlannerDashboard() {
   const [events, setEvents] = useState<Event[]>([])
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
-  const user = getCurrentUser()!
+  const { user } = useAuth()
 
   useEffect(() => {
+    if (!user) return
     Promise.all([
       api.get<Event[]>(`/api/events?planner_id=${user.id}`),
       api.get<Booking[]>('/api/bookings'),
@@ -17,9 +19,10 @@ export function PlannerDashboard() {
       setEvents(ev)
       setBookings(bk)
     }).finally(() => setLoading(false))
-  }, [user.id])
+  }, [user?.id])
 
   if (loading) return <div className="loading">Loading...</div>
+  if (!user) return null
 
   const openEvents = events.filter(e => e.status === 'open')
   const withBids = openEvents.filter(e => e.bid_count > 0)

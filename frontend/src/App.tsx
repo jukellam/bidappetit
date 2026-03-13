@@ -1,7 +1,5 @@
-import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
-import type { User } from './types'
-import { setCurrentUser, clearCurrentUser } from './api/client'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import { Layout } from './components/Layout'
 import { LoginPage } from './pages/LoginPage'
 import { PlannerDashboard } from './pages/planner/Dashboard'
@@ -14,24 +12,14 @@ import { RestaurantEventDetail } from './pages/restaurant/EventDetail'
 import { SubmitBid } from './pages/restaurant/SubmitBid'
 import { MyBidsPage } from './pages/restaurant/MyBids'
 
-function App() {
-  const [user, setUser] = useState<User | null>(null)
-
-  const handleLogin = (u: User) => {
-    setUser(u)
-    setCurrentUser(u)
-  }
-
-  const handleLogout = () => {
-    setUser(null)
-    clearCurrentUser()
-  }
+function AppRoutes() {
+  const { user, login, logout } = useAuth()
 
   if (!user) {
     return (
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+          <Route path="/login" element={<LoginPage onLogin={login} />} />
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </BrowserRouter>
@@ -43,7 +31,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Layout user={user} onLogout={handleLogout} />}>
+        <Route element={<Layout user={user} onLogout={logout} />}>
           <Route path="/planner/dashboard" element={<PlannerDashboard />} />
           <Route path="/planner/events/new" element={<CreateEvent />} />
           <Route path="/planner/events/:id" element={<PlannerEventDetail />} />
@@ -58,6 +46,14 @@ function App() {
         <Route path="*" element={<Navigate to={defaultPath} />} />
       </Routes>
     </BrowserRouter>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   )
 }
 

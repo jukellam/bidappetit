@@ -2,16 +2,12 @@ import type { User } from '../types'
 
 let currentUser: User | null = null
 
-export function setCurrentUser(user: User | null) {
+/**
+ * Called by AuthContext to keep the API client's user reference in sync.
+ * Do not call this directly — use the useAuth() hook instead.
+ */
+export function setApiUser(user: User | null) {
   currentUser = user
-}
-
-export function getCurrentUser(): User | null {
-  return currentUser
-}
-
-export function clearCurrentUser() {
-  currentUser = null
 }
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {

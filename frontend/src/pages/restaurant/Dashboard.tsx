@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { api, getCurrentUser } from '../../api/client'
+import { api } from '../../api/client'
+import { useAuth } from '../../context/AuthContext'
 import type { Event, Booking } from '../../types'
 
 export function RestaurantDashboard() {
@@ -8,9 +9,10 @@ export function RestaurantDashboard() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const user = getCurrentUser()!
+  const { user } = useAuth()
 
   useEffect(() => {
+    if (!user) return
     const cityParam = user.restaurant_profile?.city ? `&city=${encodeURIComponent(user.restaurant_profile.city)}` : ''
     Promise.all([
       api.get<Event[]>(`/api/events?status=open${cityParam}`),
@@ -19,10 +21,11 @@ export function RestaurantDashboard() {
       setEvents(ev)
       setBookings(bk)
     }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load')).finally(() => setLoading(false))
-  }, [user.restaurant_profile?.city])
+  }, [user?.restaurant_profile?.city])
 
   if (loading) return <div className="loading">Loading...</div>
   if (error) return <div className="error-message">{error}</div>
+  if (!user) return null
 
   const city = user.restaurant_profile?.city
 
