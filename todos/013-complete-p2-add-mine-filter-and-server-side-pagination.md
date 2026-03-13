@@ -1,5 +1,5 @@
 ---
-status: pending
+status: complete
 priority: p2
 issue_id: "013"
 tags: [code-review, performance, architecture, agent-native]
@@ -81,13 +81,23 @@ Option 1 first (filters), Option 2 as a follow-on. The `planner_id` filter is on
 
 ## Acceptance Criteria
 
-- [ ] GET /api/events?planner_id={id} returns only that planner's events
-- [ ] GET /api/events?has_bid=true returns only events where caller has a bid
-- [ ] PlannerDashboard uses the filter instead of client-side filter
-- [ ] MyBidsPage uses the filter instead of client-side filter
+- [x] GET /api/events?planner_id={id} returns only that planner's events
+- [x] GET /api/events?has_bid=true returns only events where caller has a bid
+- [x] PlannerDashboard uses the filter instead of client-side filter
+- [x] MyBidsPage uses the filter instead of client-side filter
 
 ## Work Log
 
 ### 2026-03-12 — Discovery
 
 **By:** Code Review (performance-oracle + agent-native-reviewer + architecture-strategist + code-simplicity-reviewer)
+
+### 2026-03-12 — Implementation
+
+**By:** Claude (todo 013)
+
+**Changes:**
+- `backend/app/routers/events.py` — added `planner_id: int | None` and `has_bid: bool | None` query parameters to `list_events`; `planner_id` filters by `Event.planner_id`, `has_bid` uses a subquery on `Bid.event_id` filtered by `current_user.id`
+- `frontend/src/pages/planner/Dashboard.tsx` — changed API call to `GET /api/events?planner_id=${user.id}`, removed client-side `.filter(e => e.planner_id === user.id)`
+- `frontend/src/pages/restaurant/MyBids.tsx` — changed API call to `GET /api/events?has_bid=true`, removed client-side `.filter(e => e.my_bid)`
+- `frontend/src/pages/restaurant/Dashboard.tsx` — added `city` query parameter to API call (`GET /api/events?status=open&city=...`), removed client-side `.filter(e => e.city === city)`
