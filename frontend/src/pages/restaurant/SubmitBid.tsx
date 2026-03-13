@@ -37,8 +37,8 @@ export function SubmitBid() {
     e.preventDefault()
     setError('')
     const body = {
-      price_total: parseFloat(form.price_total),
-      price_per_person: form.price_per_person ? parseFloat(form.price_per_person) : null,
+      price_total: Number(form.price_total) || 0,
+      price_per_person: form.price_per_person ? Number(form.price_per_person) || 0 : null,
       proposal_text: form.proposal_text,
       menu_details: form.menu_details || null,
       space_details: form.space_details || null,

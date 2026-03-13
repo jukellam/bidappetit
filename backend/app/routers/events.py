@@ -28,10 +28,7 @@ def create_event(
     db.add(event)
     db.commit()
     db.refresh(event)
-    return EventResponse(
-        **{c.name: getattr(event, c.name) for c in event.__table__.columns},
-        bid_count=0,
-    )
+    return EventResponse.model_validate(event).model_copy(update={"bid_count": 0})
 
 
 @router.get("/api/events", response_model=list[EventResponse], response_model_exclude_none=True)
@@ -72,10 +69,7 @@ def list_events(
     for event in events:
         bid_count = db.query(Bid).filter(Bid.event_id == event.id).count()
         result.append(
-            EventResponse(
-                **{c.name: getattr(event, c.name) for c in event.__table__.columns},
-                bid_count=bid_count,
-            )
+            EventResponse.model_validate(event).model_copy(update={"bid_count": bid_count})
         )
     return result
 
@@ -143,11 +137,8 @@ def get_event(
                 )
                 break
 
-    return EventResponse(
-        **{c.name: getattr(event, c.name) for c in event.__table__.columns},
-        bid_count=bid_count,
-        bids=bids_out,
-        my_bid=my_bid,
+    return EventResponse.model_validate(event).model_copy(
+        update={"bid_count": bid_count, "bids": bids_out, "my_bid": my_bid}
     )
 
 
@@ -170,7 +161,4 @@ def cancel_event(
     db.refresh(event)
 
     bid_count = db.query(Bid).filter(Bid.event_id == event.id).count()
-    return EventResponse(
-        **{c.name: getattr(event, c.name) for c in event.__table__.columns},
-        bid_count=bid_count,
-    )
+    return EventResponse.model_validate(event).model_copy(update={"bid_count": bid_count})

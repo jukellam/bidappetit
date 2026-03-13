@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class BidCreate(BaseModel):
-    price_total: float
+    price_total: float = Field(gt=0)
     price_per_person: Optional[float] = None
     proposal_text: str
     menu_details: Optional[str] = None

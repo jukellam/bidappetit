@@ -27,16 +27,16 @@ export function CreateEvent() {
         city: form.city,
         date: form.date,
         time: form.time,
-        guest_count: parseInt(form.guest_count),
-        budget_min: parseFloat(form.budget_min),
-        budget_max: parseFloat(form.budget_max),
+        guest_count: Number(form.guest_count) || 0,
+        budget_min: Number(form.budget_min) || 0,
+        budget_max: Number(form.budget_max) || 0,
         event_type: form.event_type,
         bid_deadline: new Date(form.bid_deadline).toISOString(),
         cuisine_preferences: form.cuisine_preferences || null,
         dietary_restrictions: form.dietary_restrictions || null,
         vibe: form.vibe || null,
         special_requests: form.special_requests || null,
-        duration_hours: form.duration_hours ? parseFloat(form.duration_hours) : 3,
+        duration_hours: Number(form.duration_hours) || 3,
       })
       navigate(`/planner/events/${event.id}`)
     } catch (err: unknown) {
