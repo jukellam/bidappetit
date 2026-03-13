@@ -66,6 +66,12 @@ def update_bid(
     if bid.status != "pending":
         raise HTTPException(status_code=400, detail="Can only update pending bids")
 
+    event = db.get(Event, bid.event_id)
+    if event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+    if event.bid_deadline.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Bid deadline has passed")
+
     update_data = data.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(bid, key, value)

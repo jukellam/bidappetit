@@ -2,6 +2,7 @@ from datetime import date, datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
@@ -65,11 +66,18 @@ def list_events(
 
     events = q.order_by(Event.date.asc()).all()
 
+    event_ids = [e.id for e in events]
+    bid_counts = dict(
+        db.query(Bid.event_id, func.count(Bid.id))
+        .filter(Bid.event_id.in_(event_ids))
+        .group_by(Bid.event_id)
+        .all()
+    ) if event_ids else {}
+
     result = []
     for event in events:
-        bid_count = db.query(Bid).filter(Bid.event_id == event.id).count()
         result.append(
-            EventResponse.model_validate(event).model_copy(update={"bid_count": bid_count})
+            EventResponse.model_validate(event).model_copy(update={"bid_count": bid_counts.get(event.id, 0)})
         )
     return result
 
