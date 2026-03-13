@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -27,11 +28,13 @@ async def lifespan(app: FastAPI):
     yield
 
 
+cors_origin = os.getenv("CORS_ORIGIN", "http://localhost:5173")
+
 app = FastAPI(title="BidAppetit API", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[cors_origin],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
