@@ -34,5 +34,7 @@ class BidResponse(BaseModel):
     inclusions: Optional[str] = None
     status: str
     created_at: datetime
+    restaurant_name: str | None = None
+    restaurant_cuisine: str | None = None
 
     model_config = {"from_attributes": True}

@@ -9,7 +9,8 @@ from app.dependencies import get_current_user
 from app.models.user import User
 from app.models.event import Event
 from app.models.bid import Bid
-from app.schemas.event import EventCreate, EventResponse, EventListResponse, BidInEvent
+from app.schemas.bid import BidResponse
+from app.schemas.event import EventCreate, EventResponse
 
 router = APIRouter(tags=["events"])
 
@@ -33,7 +34,7 @@ def create_event(
     )
 
 
-@router.get("/api/events", response_model=list[EventListResponse])
+@router.get("/api/events", response_model=list[EventResponse], response_model_exclude_none=True)
 def list_events(
     city: Optional[str] = Query(None),
     date_from: Optional[date] = Query(None),
@@ -71,7 +72,7 @@ def list_events(
     for event in events:
         bid_count = db.query(Bid).filter(Bid.event_id == event.id).count()
         result.append(
-            EventListResponse(
+            EventResponse(
                 **{c.name: getattr(event, c.name) for c in event.__table__.columns},
                 bid_count=bid_count,
             )
@@ -104,8 +105,9 @@ def get_event(
         for bid in event.bids:
             profile = bid.restaurant.restaurant_profile if bid.restaurant else None
             bids_out.append(
-                BidInEvent(
+                BidResponse(
                     id=bid.id,
+                    event_id=bid.event_id,
                     restaurant_id=bid.restaurant_id,
                     price_total=bid.price_total,
                     price_per_person=bid.price_per_person,
@@ -124,8 +126,9 @@ def get_event(
         for bid in event.bids:
             if bid.restaurant_id == current_user.id:
                 profile = bid.restaurant.restaurant_profile if bid.restaurant else None
-                my_bid = BidInEvent(
+                my_bid = BidResponse(
                     id=bid.id,
+                    event_id=bid.event_id,
                     restaurant_id=bid.restaurant_id,
                     price_total=bid.price_total,
                     price_per_person=bid.price_per_person,

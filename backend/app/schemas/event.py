@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from app.schemas.bid import BidResponse
+
 
 class EventCreate(BaseModel):
     title: str
@@ -20,23 +22,6 @@ class EventCreate(BaseModel):
     dietary_restrictions: Optional[str] = None
     vibe: Optional[str] = None
     special_requests: Optional[str] = None
-
-
-class BidInEvent(BaseModel):
-    id: int
-    restaurant_id: int
-    price_total: float
-    price_per_person: Optional[float] = None
-    proposal_text: str
-    menu_details: Optional[str] = None
-    space_details: Optional[str] = None
-    inclusions: Optional[str] = None
-    status: str
-    created_at: datetime
-    restaurant_name: Optional[str] = None
-    restaurant_cuisine: Optional[str] = None
-
-    model_config = {"from_attributes": True}
 
 
 class EventResponse(BaseModel):
@@ -60,27 +45,7 @@ class EventResponse(BaseModel):
     special_requests: Optional[str] = None
     created_at: datetime
     bid_count: int = 0
-    bids: Optional[list[BidInEvent]] = None
-    my_bid: Optional[BidInEvent] = None
-
-    model_config = {"from_attributes": True}
-
-
-class EventListResponse(BaseModel):
-    id: int
-    planner_id: int
-    title: str
-    description: str
-    city: str
-    date: date
-    time: time
-    guest_count: int
-    budget_min: float
-    budget_max: float
-    bid_deadline: datetime
-    status: str
-    event_type: str
-    created_at: datetime
-    bid_count: int = 0
+    bids: Optional[list[BidResponse]] = None
+    my_bid: Optional[BidResponse] = None
 
     model_config = {"from_attributes": True}
