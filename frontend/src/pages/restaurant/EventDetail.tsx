@@ -7,12 +7,14 @@ export function RestaurantEventDetail() {
   const { id } = useParams<{ id: string }>()
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    api.get<Event>(`/api/events/${id}`).then(setEvent).finally(() => setLoading(false))
+    api.get<Event>(`/api/events/${id}`).then(setEvent).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load')).finally(() => setLoading(false))
   }, [id])
 
   if (loading) return <div className="loading">Loading...</div>
+  if (error) return <div className="error-message">{error}</div>
   if (!event) return <div className="error-message">Event not found</div>
 
   const myBid = event.my_bid

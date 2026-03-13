@@ -6,19 +6,25 @@ export function MyBookings() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchBookings = () => {
-    api.get<Booking[]>('/api/bookings').then(setBookings).finally(() => setLoading(false))
+    api.get<Booking[]>('/api/bookings').then(setBookings).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load')).finally(() => setLoading(false))
   }
 
   useEffect(() => { fetchBookings() }, [])
 
   const handleCancel = async (id: number) => {
-    await api.patch(`/api/bookings/${id}/cancel`)
-    fetchBookings()
+    try {
+      await api.patch(`/api/bookings/${id}/cancel`)
+      fetchBookings()
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Failed to cancel')
+    }
   }
 
   if (loading) return <div className="loading">Loading...</div>
+  if (error) return <div className="error-message">{error}</div>
 
   return (
     <div>

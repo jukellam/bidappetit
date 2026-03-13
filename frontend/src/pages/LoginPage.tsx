@@ -9,17 +9,23 @@ interface LoginPageProps {
 export function LoginPage({ onLogin }: LoginPageProps) {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    api.get<User[]>('/api/users').then(setUsers).finally(() => setLoading(false))
+    api.get<User[]>('/api/users').then(setUsers).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load')).finally(() => setLoading(false))
   }, [])
 
   const handleSelect = async (userId: number) => {
-    const user = await api.post<User>('/api/auth/login', { user_id: userId })
-    onLogin(user)
+    try {
+      const user = await api.post<User>('/api/auth/login', { user_id: userId })
+      onLogin(user)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Failed to sign in')
+    }
   }
 
   if (loading) return <div className="loading">Loading...</div>
+  if (error) return <div className="error-message">{error}</div>
 
   const planners = users.filter(u => u.user_type === 'planner')
   const restaurants = users.filter(u => u.user_type === 'restaurant')

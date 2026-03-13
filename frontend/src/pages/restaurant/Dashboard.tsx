@@ -7,6 +7,7 @@ export function RestaurantDashboard() {
   const [events, setEvents] = useState<Event[]>([])
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const user = getCurrentUser()!
 
   useEffect(() => {
@@ -16,10 +17,11 @@ export function RestaurantDashboard() {
     ]).then(([ev, bk]) => {
       setEvents(ev)
       setBookings(bk)
-    }).finally(() => setLoading(false))
+    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load')).finally(() => setLoading(false))
   }, [])
 
   if (loading) return <div className="loading">Loading...</div>
+  if (error) return <div className="error-message">{error}</div>
 
   const city = user.restaurant_profile?.city
   const cityEvents = events.filter(e => e.city === city)
