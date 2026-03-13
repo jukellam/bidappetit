@@ -1,5 +1,5 @@
 ---
-status: pending
+status: complete
 priority: p2
 issue_id: "007"
 tags: [code-review, python, type-safety, architecture]
@@ -81,13 +81,19 @@ Option 2 (SQLAlchemy Enum). Also update `frontend/src/types/index.ts` to remove 
 
 ## Acceptance Criteria
 
-- [ ] All status fields use StrEnum or SQLAlchemy Enum
-- [ ] No bare string literals for status values in routers
-- [ ] Frontend type unions match backend valid values
-- [ ] App still seeds and runs correctly
+- [x] All status fields use StrEnum or SQLAlchemy Enum
+- [x] No bare string literals for status values in routers
+- [x] Frontend type unions match backend valid values
+- [x] App still seeds and runs correctly
 
 ## Work Log
 
 ### 2026-03-12 — Discovery
 
 **By:** Code Review (python-reviewer + architecture-strategist)
+
+### 2026-03-12 — Implementation
+
+**By:** Claude (pr-comment-resolver)
+
+Created `backend/app/models/enums.py` with four StrEnum classes: `EventStatus`, `BidStatus`, `BookingStatus`, `UserType`. Updated all four model files to import and use enum defaults. Replaced every bare string status/user_type comparison and assignment across `events.py`, `bids.py`, `bookings.py` routers and `seed.py`. Removed `'expired'` from frontend `EventStatus`, `'withdrawn'` from `BidStatus`, and `'completed'` from `BookingStatus` to align with backend enum values. Column types remain `String(20)` for SQLite compatibility.
